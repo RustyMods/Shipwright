@@ -1,0 +1,5 @@
+item: ''
+
+msg_missingmat: "Missing required material to fix ship"
+msg_shiphealth: "Ship health"
+msg_missinghoverpiece: "Missing ship target"
