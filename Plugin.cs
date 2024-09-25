@@ -2,12 +2,12 @@
 using System.IO;
 using System.Reflection;
 using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using ItemManager;
 using JetBrains.Annotations;
-using PortalStationPlus.Managers;
 using ServerSync;
 using Settlers.Managers;
 using Shipwright.Solution;
@@ -19,7 +19,7 @@ namespace Shipwright
     public class ShipwrightPlugin : BaseUnityPlugin
     {
         internal const string ModName = "Shipwright";
-        internal const string ModVersion = "1.0.0";
+        internal const string ModVersion = "1.0.1";
         internal const string Author = "RustyMods";
         private const string ModGUID = Author + "." + ModName;
         private static readonly string ConfigFileName = ModGUID + ".cfg";
@@ -47,6 +47,8 @@ namespace Shipwright
         public static ConfigEntry<Toggle> _useStorage = null!;
         public static ConfigEntry<Toggle> _useShields = null!;
 
+        public static bool m_balrondShipyardInstalled;
+
         private void InitConfigs()
         {
             _serverConfigLocked = config("1 - General", "Lock Configuration", Toggle.On, "If on, the configuration is locked and can be changed by server admins only.");
@@ -59,9 +61,7 @@ namespace Shipwright
             _repairDuration = config("2 - Settings", "Repair Duration", 1f, new ConfigDescription("Set the duration to load repair hammer, in seconds, multiplied by the quality of the tool", new AcceptableValueRange<float>(1f, 101f)));
             _usePlaceEffects = config("2 - Settings", "Repair Effects", Toggle.On, "If on, upon repair, effects are triggered");
             _canDeconstruct = config("2 - Settings", "Can Deconstruct", Toggle.Off, "If on, using secondary attack, player can deconstruct");
-            _deconstructDuration = config("2 - Settings", "Deconstruct Duration", 10f,
-                new ConfigDescription("Set the duration to deconstruct, in seconds, multiplied by quality of the tool",
-                    new AcceptableValueRange<float>(1f, 101f)));
+            _deconstructDuration = config("2 - Settings", "Deconstruct Duration", 10f, new ConfigDescription("Set the duration to deconstruct, in seconds, multiplied by quality of the tool", new AcceptableValueRange<float>(1f, 101f)));
             _useDurability = config("2 - Settings", "Use Durability", Toggle.On, "If on, each use of tool uses durability");
 
             _useShipCustomize = config("3 - Longship", "Extra Visuals", Toggle.Off,
@@ -121,6 +121,12 @@ namespace Shipwright
             HammerBucket.CraftAmount = 1;
             HammerBucket.Crafting.Add(CraftingTable.Forge, 1);
             HammerBucket.triggerEffects = new() { "sfx_build_hammer_metal" };
+
+            if (Chainloader.PluginInfos.ContainsKey("balrond.astafaraios.BalrondShipyard"))
+            {
+                ShipwrightLogger.LogInfo("Balrond Shipyard Installed, disabling extra visuals");
+                m_balrondShipyardInstalled = true;
+            }
 
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);

@@ -39,6 +39,7 @@ public class ShipCustomize : MonoBehaviour
                 m_crates.Add(obj.gameObject);
             }
         }
+        if (ShipwrightPlugin.m_balrondShipyardInstalled) return;
         DisableAll();
         
         m_instances.Add(this);
@@ -50,30 +51,42 @@ public class ShipCustomize : MonoBehaviour
         SetShields(ShipwrightPlugin._useShields.Value is ShipwrightPlugin.Toggle.On);
     }
 
-    public void SetCustomize(bool enable) => m_customize.SetActive(enable);
+    public void SetCustomize(bool enable)
+    {
+        if (ShipwrightPlugin.m_balrondShipyardInstalled) return;
+        m_customize.SetActive(enable);
+    }
 
     public void SetTent(bool enable)
     {
+        if (ShipwrightPlugin.m_balrondShipyardInstalled) return;
         m_shipTentBeam.SetActive(enable);
         m_shipTent.SetActive(enable);
         m_shipTentHolders1.SetActive(enable);
         m_shipTentHolders2.SetActive(enable);
     }
 
-    public void SetLamp(bool enable) => m_traderLamp.SetActive(enable);
+    public void SetLamp(bool enable)
+    {
+        if (ShipwrightPlugin.m_balrondShipyardInstalled) return;
+        m_traderLamp.SetActive(enable);
+    }
 
     public void SetStorage(bool enable)
     {
+        if (ShipwrightPlugin.m_balrondShipyardInstalled) return;
         foreach (var item in m_crates) item.SetActive(enable);
     }
 
     public void SetShields(bool enable)
     {
+        if (ShipwrightPlugin.m_balrondShipyardInstalled) return;
         foreach (var item in m_shields) item.SetActive(enable);
     }
 
     public void DisableAll()
     {
+        if (ShipwrightPlugin.m_balrondShipyardInstalled) return;
         SetTent(false);
         SetLamp(false);
         SetStorage(false);
@@ -88,6 +101,7 @@ public class ShipCustomize : MonoBehaviour
         private static void Postfix(ZNetScene __instance)
         {
             if (!__instance) return;
+            if (ShipwrightPlugin.m_balrondShipyardInstalled) return;
             var vikingShip = __instance.GetPrefab("VikingShip");
             if (!vikingShip) return;
             vikingShip.AddComponent<ShipCustomize>();
